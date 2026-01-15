@@ -2,9 +2,14 @@ package com.owncloud.self.api.controller;
 
 import com.owncloud.self.api.service.OwnCloudService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/owncloud/file")
@@ -31,6 +36,25 @@ public class OwnCloudUploaderController {
             return ResponseEntity.status(500).body("Error al subir archivo: " + e.getMessage());
         }
     }
+
+    @PostMapping("/")
+    public ResponseEntity<List<String>> getRootArchivo(@RequestParam(value = "root", defaultValue = "") String root) {
+
+        System.out.println("root: "+ root);
+        try {
+            List<String> lista = ownCloudService.getFilesCloud(root);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(lista);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.singletonList("{\"error\":\"Error al generar el JSON\"} - " + e.getMessage()));
+
+        }
+    }
+
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> eliminarArchivo(@RequestParam(value = "root", defaultValue = "") String root) {
