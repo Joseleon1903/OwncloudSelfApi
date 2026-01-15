@@ -37,8 +37,8 @@ public class OwnCloudUploaderController {
         }
     }
 
-    @PostMapping("/")
-    public ResponseEntity<List<String>> getRootArchivo(@RequestParam(value = "root", defaultValue = "") String root) {
+    @GetMapping("/")
+    public ResponseEntity<List<String>> getRootArchivo(@RequestParam(value = "dir", defaultValue = "") String root) {
 
         System.out.println("root: "+ root);
         try {

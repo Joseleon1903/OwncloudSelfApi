@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,12 @@ public class OwnCloudServiceImpl implements OwnCloudService {
         }
         System.out.println("ruta valida creando archivo..");
         // URL completa del archivo
-        String urlArchivo = urlCarpeta + archivo.getOriginalFilename();
+
+        String fileName = archivo.getOriginalFilename();
+
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+
+        String urlArchivo = urlCarpeta +encodedFileName;
         System.out.println("urlArchivo: "+urlArchivo);
         try (InputStream is = archivo.getInputStream()) {
             sardine.put(urlArchivo, is);
@@ -63,9 +70,9 @@ public class OwnCloudServiceImpl implements OwnCloudService {
             System.out.println("rurlCarpeta: "+urlCarpeta);
             throw new Exception("La ruta no existe");
         }
-
+        System.out.println("urlCarpeta: "+urlCarpeta);
         System.out.println("la ruta existe procediendo a buscar el listado de contenido");
-        List<DavResource> listFile=  sardine.list(carpetaDestino);
+        List<DavResource> listFile=  sardine.list(urlCarpeta);
         listFile.forEach( fl ->{
             rootlist.add(fl.getName()) ;
         });
