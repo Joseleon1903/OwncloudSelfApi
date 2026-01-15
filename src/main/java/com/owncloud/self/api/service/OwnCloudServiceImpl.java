@@ -51,8 +51,8 @@ public class OwnCloudServiceImpl implements OwnCloudService {
         }
     }
 
+    @Override
     public List<String> getFilesCloud(String carpetaDestino) throws Exception {
-
         Sardine sardine = SardineFactory.begin(username, password);
         List<String> rootlist = new ArrayList<>();
         //validar si existe la ruta
@@ -71,6 +71,40 @@ public class OwnCloudServiceImpl implements OwnCloudService {
         });
         System.out.println("list size: "+ rootlist.size());
         return rootlist;
+    }
+
+    @Override
+    public void deleteFileCloud(String urlFile) throws Exception {
+        System.out.println("Entering deleteFileCloud");
+        Sardine sardine = SardineFactory.begin(username, password);
+
+        //validar si existe la ruta
+        System.out.println("validar si existe la ruta");
+        if (!sardine.exists(urlFile)) {
+            System.out.println("carperta no existe..");
+            System.out.println("rurlCarpeta: "+urlFile);
+            throw new Exception("La ruta no existe");
+        }
+        System.out.println("intentando elimiar file : "+ urlFile);
+        try{
+            sardine.delete(urlFile);
+        } catch (Exception e) {
+            throw new Exception("Error al subir archivo: " + e.getMessage());
+        }
+        System.out.println("Existing deleteFileCloud..");
+    }
+
+    @Override
+    public InputStream getFile(String root) throws Exception {
+        Sardine sardine = SardineFactory.begin(username, password);
+        //validar si existe la ruta
+        System.out.println("validar si existe la ruta");
+        if (!sardine.exists(root)) {
+            System.out.println("carperta no existe..");
+            System.out.println("rurlCarpeta: "+root);
+            throw new Exception("La ruta no existe");
+        }
+        return sardine.get(root);
     }
 
 }

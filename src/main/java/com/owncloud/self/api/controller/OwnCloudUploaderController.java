@@ -1,13 +1,9 @@
 package com.owncloud.self.api.controller;
 
 import com.owncloud.self.api.service.OwnCloudService;
-import com.owncloud.self.api.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -33,6 +29,18 @@ public class OwnCloudUploaderController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error al subir archivo: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> eliminarArchivo(@RequestParam(value = "root", defaultValue = "") String root) {
+        System.out.println("FolderName: "+ root);
+        try {
+            ownCloudService.deleteFileCloud(root);
+            return ResponseEntity.ok("Archivo eliminado correctamente");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error al eliminar archivo: " + e.getMessage());
         }
     }
 
