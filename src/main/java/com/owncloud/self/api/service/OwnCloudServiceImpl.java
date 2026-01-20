@@ -4,6 +4,8 @@ import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -102,16 +104,19 @@ public class OwnCloudServiceImpl implements OwnCloudService {
     }
 
     @Override
-    public InputStream getFile(String root) throws Exception {
+    public Resource getFile(String root) throws Exception {
         Sardine sardine = SardineFactory.begin(username, password);
         //validar si existe la ruta
-        System.out.println("validar si existe la ruta");
-        if (!sardine.exists(root)) {
-            System.out.println("carperta no existe..");
-            System.out.println("rurlCarpeta: "+root);
-            throw new Exception("La ruta no existe");
-        }
-        return sardine.get(root);
+        String urlarchivo = ownCloudUrl + root;
+        System.out.println("validar si existe la ruta que se envia" );
+//        if (!sardine.exists(root)) {
+//            System.out.println("carperta no existe...");
+//            System.out.println("rurlCarpeta : "+root);
+//            throw new Exception("La ruta no existe.");
+//        }
+        System.out.println("urlarchivo: "+urlarchivo);
+        InputStream inputStream =sardine.get(urlarchivo);
+        return new InputStreamResource(inputStream);
     }
 
 }

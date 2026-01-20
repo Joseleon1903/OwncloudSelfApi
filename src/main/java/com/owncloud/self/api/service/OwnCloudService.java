@@ -1,5 +1,6 @@
 package com.owncloud.self.api.service;
 
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -14,5 +15,5 @@ public interface OwnCloudService {
 
     void deleteFileCloud(String carpetaDestino) throws Exception;
 
-    InputStream getFile(String root) throws Exception;
+    Resource getFile(String root) throws Exception;
 }
