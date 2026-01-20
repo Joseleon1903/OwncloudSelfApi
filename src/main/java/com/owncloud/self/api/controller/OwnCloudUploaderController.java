@@ -116,35 +116,44 @@ public class OwnCloudUploaderController {
                                                 @RequestHeader HttpHeaders headers) throws Exception {
 
         Resource video = ownCloudService.getFile(root);
-        long contentLength = video.contentLength();
 
-        List<HttpRange> ranges = headers.getRange();
-
-        if (ranges.isEmpty()) {
-            return ResponseEntity.ok()
-                    .contentType(MediaType.valueOf("video/mp4"))
-                    .contentLength(contentLength)
-                    .body(video);
-        }
-
-        HttpRange range = ranges.get(0);
-        long start = range.getRangeStart(contentLength);
-        long end = range.getRangeEnd(contentLength);
-        long rangeLength = end - start + 1;
-
-        InputStream inputStream = video.getInputStream();
-        inputStream.skip(start);
-
-        Resource region = new InputStreamResource(
-                new LimitedInputStream(inputStream, rangeLength)
-        );
-
-        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+        return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("video/mp4"))
-                .header(HttpHeaders.CONTENT_RANGE,
-                        "bytes " + start + "-" + end + "/" + contentLength)
-                .contentLength(rangeLength)
-                .body(region);
+//                .contentLength(video.contentLength())
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + video.getFilename() + "\"")
+                .body(video);
+
+//        Resource video = ownCloudService.getFile(root);
+//        long contentLength = video.contentLength();
+//
+//        List<HttpRange> ranges = headers.getRange();
+//
+//        if (ranges.isEmpty()) {
+//            return ResponseEntity.ok()
+//                    .contentType(MediaType.valueOf("video/mp4"))
+//                    .contentLength(contentLength)
+//                    .body(video);
+//        }
+//
+//        HttpRange range = ranges.get(0);
+//        long start = range.getRangeStart(contentLength);
+//        long end = range.getRangeEnd(contentLength);
+//        long rangeLength = end - start + 1;
+//
+//        InputStream inputStream = video.getInputStream();
+//        inputStream.skip(start);
+//
+//        Resource region = new InputStreamResource(
+//                new LimitedInputStream(inputStream, rangeLength)
+//        );
+//
+//        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+//                .contentType(MediaType.valueOf("video/mp4"))
+//                .header(HttpHeaders.CONTENT_RANGE,
+//                        "bytes " + start + "-" + end + "/" + contentLength)
+//                .contentLength(rangeLength)
+//                .body(region);
     }
 
 
