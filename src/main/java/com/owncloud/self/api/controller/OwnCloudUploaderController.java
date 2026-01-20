@@ -4,12 +4,15 @@ import com.owncloud.self.api.service.OwnCloudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,14 +73,43 @@ public class OwnCloudUploaderController {
         }
     }
 
-    @GetMapping(value = "/view/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/view/jpg/image", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
-    public ResponseEntity<InputStreamResource> viewImage(@RequestParam(value = "root", defaultValue = "") String root) throws Exception {
+    public ResponseEntity<InputStreamResource> viewJpgImage(@RequestParam(value = "root", defaultValue = "") String root) throws Exception {
         System.out.println("root: "+root);
         Resource in = ownCloudService.getFile(root);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType( MediaType.IMAGE_JPEG_VALUE))
                 .body(new InputStreamResource(in.getInputStream()));
+    }
+
+    @GetMapping(value = "/view/png/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> viewPngImage(@RequestParam(value = "root", defaultValue = "") String root) throws Exception {
+        System.out.println("root: "+root);
+        Resource in = ownCloudService.getFile(root);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType( MediaType.IMAGE_PNG_VALUE))
+                .body(new InputStreamResource(in.getInputStream()));
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<Resource> download(@RequestParam(value = "root", defaultValue = "") String root) throws Exception {
+        System.out.println("root: "+root);
+        Resource resource = ownCloudService.getFile(root);
+        System.out.println("filename: "+resource.getFilename());
+
+        StreamingResponseBody stream = outputStream -> {
+            try (InputStream in = resource.getInputStream()) {
+                in.transferTo(outputStream);
+            }
+        };
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename="+resource.getFilename())
+                .build();
     }
 
 }
