@@ -3,6 +3,8 @@ package com.owncloud.self.api.service;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
+import com.owncloud.self.api.domain.Item;
+import com.owncloud.self.api.mapper.ItemMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -26,6 +28,12 @@ public class OwnCloudServiceImpl implements OwnCloudService {
 
     @Value("${owncloud.password}")
     private String password;
+
+    private final ItemService itemService;
+
+    public OwnCloudServiceImpl(ItemService itemService) {
+        this.itemService = itemService;
+    }
 
     public void uploadCloud(MultipartFile archivo, String carpetaDestino) throws Exception {
         Sardine sardine = SardineFactory.begin(username, password);
@@ -58,6 +66,11 @@ public class OwnCloudServiceImpl implements OwnCloudService {
         if (!sardine.exists(urlArchivo)) {
             throw new Exception("El archivo no se subió correctamente");
         }
+
+        System.out.println("registrando item en database");
+        Item item = ItemMapper.parceitem(archivo, carpetaDestino, urlArchivo);
+        itemService.save(item);
+        System.out.println("item almacenado correctamente");
     }
 
     @Override
